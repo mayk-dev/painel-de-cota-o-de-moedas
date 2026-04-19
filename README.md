@@ -1,0 +1,1 @@
+# painel-de-cota-o-de-moedas
