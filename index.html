@@ -1,0 +1,226 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel Cambial</title>
+    <meta
+      name="description"
+      content="Dashboard de cotacao de moedas em relacao ao Real Brasileiro com conversao, ranking, filtros e grafico historico."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <main class="app-shell">
+      <section class="hero card">
+        <div class="hero-copy-block">
+          <span class="eyebrow">Painel Cambial</span>
+          <h1>Painel moderno para acompanhar moedas contra o Real</h1>
+          <p class="hero-copy">
+            Consulte cotacoes quase em tempo real, descubra tendencias, filtre moedas e
+            compare a forca de cada uma em relacao ao BRL sem backend.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#converter" class="primary-button">Abrir conversor</a>
+            <a href="#ranking" class="ghost-button button-link">Ver ranking completo</a>
+          </div>
+        </div>
+
+        <div class="hero-side">
+          <div class="status-pill live-pill">
+            <span class="live-dot"></span>
+            <span id="api-status">Carregando dados...</span>
+          </div>
+          <div class="hero-stat-grid">
+            <article class="mini-stat">
+              <span>Base</span>
+              <strong>BRL</strong>
+            </article>
+            <article class="mini-stat">
+              <span>Moedas monitoradas</span>
+              <strong id="tracked-count">--</strong>
+            </article>
+            <article class="mini-stat">
+              <span>Maior alta</span>
+              <strong id="top-gainer">--</strong>
+            </article>
+            <article class="mini-stat">
+              <span>Maior queda</span>
+              <strong id="top-loser">--</strong>
+            </article>
+          </div>
+          <button id="refresh-button" class="ghost-button full-width" type="button">
+            Atualizar agora
+          </button>
+        </div>
+      </section>
+
+      <section class="summary-grid">
+        <article class="card summary-card">
+          <span class="section-label">Panorama</span>
+          <strong id="highest-currency">--</strong>
+          <p>Moeda mais cara da lista monitorada.</p>
+        </article>
+        <article class="card summary-card">
+          <span class="section-label">Panorama</span>
+          <strong id="lowest-currency">--</strong>
+          <p>Moeda mais barata da lista monitorada.</p>
+        </article>
+        <article class="card summary-card">
+          <span class="section-label">Variacao</span>
+          <strong id="weekly-move">--</strong>
+          <p>Maior movimento percentual no periodo selecionado.</p>
+        </article>
+        <article class="card summary-card">
+          <span class="section-label">Media</span>
+          <strong id="average-rate">--</strong>
+          <p>Preco medio das moedas destacadas contra BRL.</p>
+        </article>
+      </section>
+
+      <section class="dashboard-grid">
+        <article id="converter" class="card converter-card">
+          <div class="section-heading">
+            <div>
+              <span class="section-label">Conversor</span>
+              <h2>Quanto vale em reais?</h2>
+            </div>
+          </div>
+
+          <form class="converter-form" autocomplete="off">
+            <label>
+              Valor
+              <input id="amount-input" type="number" min="0" step="0.01" value="1" />
+            </label>
+            <label>
+              Moeda
+              <input
+                id="currency-search"
+                type="search"
+                list="currency-options"
+                placeholder="Ex.: USD ou Dolar Americano"
+              />
+              <datalist id="currency-options"></datalist>
+              <select id="currency-select"></select>
+            </label>
+          </form>
+
+          <div class="conversion-result">
+            <p class="result-label">Resultado estimado em BRL</p>
+            <strong id="conversion-value">--</strong>
+            <span id="conversion-details">Selecione uma moeda para comecar.</span>
+          </div>
+        </article>
+
+        <article class="card insight-card">
+          <div class="section-heading">
+            <div>
+              <span class="section-label">Leitura rapida</span>
+              <h2>Sentimento do mercado</h2>
+            </div>
+          </div>
+
+          <div class="insight-list">
+            <div>
+              <span>Moedas em alta</span>
+              <strong id="positive-count">--</strong>
+            </div>
+            <div>
+              <span>Moedas em queda</span>
+              <strong id="negative-count">--</strong>
+            </div>
+            <div>
+              <span>Moeda em foco</span>
+              <strong id="focus-currency">USD</strong>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="card">
+        <div class="section-heading section-heading-inline">
+          <div>
+            <span class="section-label">Destaques</span>
+            <h2>Principais moedas contra o BRL</h2>
+          </div>
+          <p class="section-note">Atualizacao automatica a cada 5 minutos.</p>
+        </div>
+        <div id="highlights-grid" class="highlights-grid"></div>
+      </section>
+
+      <section class="analytics-grid">
+        <article class="card chart-card">
+          <div class="section-heading section-heading-inline">
+            <div>
+              <span class="section-label">Historico</span>
+              <h2>Tendencia da moeda selecionada</h2>
+            </div>
+            <div class="chart-controls">
+              <label class="chart-selector">
+                Moeda analisada
+                <select id="chart-currency-select"></select>
+              </label>
+              <div class="range-switcher" id="range-switcher">
+                <button class="range-button active" type="button" data-range="7">7 dias</button>
+                <button class="range-button" type="button" data-range="15">15 dias</button>
+                <button class="range-button" type="button" data-range="30">30 dias</button>
+              </div>
+            </div>
+          </div>
+          <div class="chart-meta">
+            <span id="chart-title">USD/BRL</span>
+            <span id="chart-change">--</span>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="history-chart"></canvas>
+          </div>
+        </article>
+
+        <article id="ranking" class="card ranking-card">
+          <div class="section-heading">
+            <div>
+              <span class="section-label">Ranking</span>
+              <h2>Moedas monitoradas</h2>
+            </div>
+          </div>
+
+          <div class="ranking-toolbar">
+            <input
+              id="search-input"
+              type="search"
+              placeholder="Buscar por codigo ou nome da moeda"
+            />
+            <select id="sort-select">
+              <option value="desc">Mais caras primeiro</option>
+              <option value="asc">Mais baratas primeiro</option>
+              <option value="change">Maior variacao</option>
+              <option value="code">Codigo A-Z</option>
+            </select>
+          </div>
+
+          <div id="ranking-list" class="ranking-list"></div>
+        </article>
+      </section>
+
+      <section class="card footer-card">
+        <p>
+          Direitos Reservador 2024/2026.
+          Desenvolvido por Mayk Nascimento
+        </p>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
